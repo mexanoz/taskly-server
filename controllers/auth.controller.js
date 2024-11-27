@@ -25,11 +25,43 @@ export async function signup(req, res, next) {
         const token = jwt.sign({ id: insertedId }, process.env.AUTH_SECRET);
         user._id = insertedId;
         const { password: _, createdAt, updatedAt, ...rest } = user;
-        return res
-            .cookie("taskly_token", token, { httpOnly: true })
+        res.cookie("taskly_token", token, { httpOnly: true })
             .status(200)
             .json(rest);
     } catch (error) {
         next({ status: 500, error });
+    }
+}
+
+export async function signin(req, res, next) {
+    const { email, password } = req.body;
+    try {
+        const validUser = await collection.findOne({ email });
+        if (!validUser) {
+            return next({ status: 404, message: "User not found" });
+        }
+        const validPassword = await bcrypt.compare(
+            password,
+            validUser.password
+        );
+        if (!validPassword) {
+            return next({ status: 401, message: "Password incorrect" });
+        }
+        const token = jwt.sign({ id: validUser._id }, process.env.AUTH_SECRET);
+        const { password: _, updatedAt, createdAt, ...rest } = validUser;
+        res.cookie("taskly_token", token, { httpOnly: true })
+            .status(200)
+            .json(rest);
+    } catch (error) {
+        next({ status: 500, error });
+    }
+}
+
+export async function signout(req, res, next) {
+    try {
+        res.clearCookie("taskly_token");
+        res.status(200).json({ message: "Signed out" });
+    } catch (error) {
+        next({ status: 500 });
     }
 }
