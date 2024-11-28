@@ -18,6 +18,12 @@ export async function getUser(req, res, next) {
 }
 
 export async function updateUser(req, res, next) {
+    if (req.user.id !== req.params.id) {
+        return next({
+            status: 401,
+            message: "You can only update your own account",
+        });
+    }
     try {
         if (req.body.password) {
             req.body.password = await bcrypt.hash(req.body.password, 10);
@@ -45,6 +51,12 @@ export async function updateUser(req, res, next) {
 }
 
 export async function deleteUser(req, res, next) {
+    if (req.user.id !== req.params.id) {
+        return next({
+            status: 401,
+            message: "You can only delete your own account",
+        });
+    }
     try {
         const query = { _id: new ObjectId(req.params.id) };
         await collection.deleteOne(query);
