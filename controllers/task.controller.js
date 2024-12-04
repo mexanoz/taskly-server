@@ -5,9 +5,24 @@ const collection = db.collection("tasks");
 
 export async function getTasksByUser(req, res, next) {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = parseInt(req.query.pageSize) || 4;
+
         const query = { owner: new ObjectId(req.params.id) };
-        const tasks = await collection.find(query).toArray();
-        res.status(200).json({ tasks });
+        const { status, orderBy } = req.query;
+        if (status) {
+            query.status = status;
+        }
+        const sort = orderBy ? { [orderBy]: 1 } : {};
+
+        const tasks = await collection
+            .find(query)
+            .limit(pageSize)
+            .skip((page - 1) * pageSize)
+            .sort(sort)
+            .toArray();
+        const taskCount = await collection.countDocuments(query);
+        res.status(200).json({ tasks, taskCount });
     } catch (error) {
         next({ status: 500, error });
     }
