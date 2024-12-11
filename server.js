@@ -9,7 +9,7 @@ import { errorHandler } from "./lib/middleware.js";
 import fileUpload from "express-fileupload";
 
 const app = express();
-const PORT = 8080;
+const PORT = 3000;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -20,12 +20,16 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/image", cloudRouter);
 app.use("/api/v1/tasks", taskRouter);
 
+app.get("/", (req, res) => {
+    res.status(200).json({ message: "Welcome to Taskly API" });
+});
+
 app.use("*", (req, res) => {
     res.status(404).json({ message: "not found" });
 });
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`Listening on port ${PORT}`);
 });

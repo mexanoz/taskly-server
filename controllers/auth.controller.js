@@ -25,7 +25,12 @@ export async function signup(req, res, next) {
         const token = jwt.sign({ id: insertedId }, process.env.AUTH_SECRET);
         user._id = insertedId;
         const { password: _, createdAt, updatedAt, ...rest } = user;
-        res.cookie("taskly_token", token, { httpOnly: true })
+        res.cookie("taskly_token", token, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            partitioned: true,
+        })
             .status(200)
             .json(rest);
     } catch (error) {
@@ -49,7 +54,12 @@ export async function signin(req, res, next) {
         }
         const token = jwt.sign({ id: validUser._id }, process.env.AUTH_SECRET);
         const { password: _, updatedAt, createdAt, ...rest } = validUser;
-        res.cookie("taskly_token", token, { httpOnly: true })
+        res.cookie("taskly_token", token, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            partitioned: true,
+        })
             .status(200)
             .json(rest);
     } catch (error) {
