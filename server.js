@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.route.js";
 import cloudRouter from "./routes/cloudinary.route.js";
@@ -11,6 +12,7 @@ import fileUpload from "express-fileupload";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(fileUpload());
